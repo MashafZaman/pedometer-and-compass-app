@@ -1,0 +1,3 @@
+# Pedometer + Compass
+
+## Getting Started
