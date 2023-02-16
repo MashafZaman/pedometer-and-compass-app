@@ -4,6 +4,8 @@ import 'package:pedometer/pedometer.dart';
 import 'package:flutter_compass/flutter_compass.dart';
 import 'package:permission_handler/permission_handler.dart';
 import 'dart:math' as math;
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 
 String formatDate(DateTime d) {
   return d.toString().substring(0, 19);
@@ -19,14 +21,45 @@ class MyApp extends StatefulWidget {
   @override
   _MyAppState createState() => _MyAppState();
 }
+double? direction = 0.0;
+String _steps = '?';
 
 class _MyAppState extends State<MyApp> {
   late Stream<StepCount> _stepCountStream;
   late Stream<PedestrianStatus> _pedestrianStatusStream;
-  String _status = '?', _steps = '?';
+  String _status = '?';
   bool _hasPermissions = false;
   CompassEvent? _lastRead;
   DateTime? _lastReadAt;
+  String message = '';
+
+  Future<void> performGetRequest() async {
+    var url = 'http://localhost:5000/api/get';
+    var response = await http.get(Uri.parse(url));
+    if (response.statusCode == 200) {
+      setState(() {
+        message = 'Status: ${jsonDecode(response.body)['status']}';
+      });
+    } else {
+      print('Request failed with status: ${response.statusCode}.');
+    }
+  }
+
+  Future<void> performPostRequest() async {
+    var url = 'http://localhost:5000/api/post';
+    var response = await http.post(
+      Uri.parse(url),
+      headers: {'Content-Type': 'application/json'},
+      body: jsonEncode({'orientation': '$direction', 'steps_moved': _steps}),
+    );
+    if (response.statusCode == 200) {
+      setState(() {
+        message = jsonDecode(response.body)['message'];
+      });
+    } else {
+      print('Request failed with status: ${response.statusCode}.');
+    }
+  }
 
   @override
   void initState() {
@@ -184,7 +217,7 @@ class _MyAppState extends State<MyApp> {
                         );
                       }
 
-                      double? direction = snapshot.data!.heading;
+                      direction = snapshot.data!.heading;
                       double? accuracy = snapshot.data!.accuracy;
 
                       // if direction is null, then device does not support this sensor
@@ -200,6 +233,23 @@ class _MyAppState extends State<MyApp> {
 
                       return Column(
                         children: [
+                          ElevatedButton(
+                            onPressed: performGetRequest,
+                            child: Text(
+                              'Perform GET Request',
+                              style: const TextStyle(fontSize: 20, color: Colors.white)
+                            ),
+                          ),
+                          ElevatedButton(
+                            onPressed: performPostRequest,
+                            child: Text(
+                                'Perform POST Request',
+                                style: const TextStyle(fontSize: 20, color: Colors.white)
+                            ),
+                          ),
+
+                          Text(message),
+
                           Center(
                             child: Text(
                               "Heading: $direction\nAccuracy: $accuracy",
@@ -217,7 +267,7 @@ class _MyAppState extends State<MyApp> {
                                 shape: BoxShape.circle,
                               ),
                               child: Transform.rotate(
-                                angle: (direction * (math.pi / 180) * -1),
+                                angle: (direction! * (math.pi / 180) * -1),
                                 child: Image.asset('assets/compass.png'),
                               ),
                             ),
