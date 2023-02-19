@@ -12,15 +12,14 @@ String formatDate(DateTime d) {
 }
 
 void main() {
-  runApp(
-    MyApp()
-  );
+  runApp(MyApp());
 }
 
 class MyApp extends StatefulWidget {
   @override
   _MyAppState createState() => _MyAppState();
 }
+
 double? direction = 0.0;
 String _steps = '?';
 
@@ -34,7 +33,7 @@ class _MyAppState extends State<MyApp> {
   String message = '';
 
   Future<void> performGetRequest() async {
-    var url = 'http://localhost:5000/api/get';
+    var url = 'https://palantir-backend.vercel.app/api/get';
     var response = await http.get(Uri.parse(url));
     if (response.statusCode == 200) {
       setState(() {
@@ -46,11 +45,11 @@ class _MyAppState extends State<MyApp> {
   }
 
   Future<void> performPostRequest() async {
-    var url = 'http://localhost:5000/api/post';
+    var url = 'https://palantir-backend.vercel.app/api/post';
     var response = await http.post(
       Uri.parse(url),
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'orientation': '$direction', 'steps_moved': _steps}),
+      body: jsonEncode({'orientation': direction, 'steps_moved': _steps}),
     );
     if (response.statusCode == 200) {
       setState(() {
@@ -104,9 +103,7 @@ class _MyAppState extends State<MyApp> {
         .onError(onPedestrianStatusError);
 
     _stepCountStream = Pedometer.stepCountStream;
-    _stepCountStream
-        .listen(onStepCount)
-        .onError(onStepCountError);
+    _stepCountStream.listen(onStepCount).onError(onStepCountError);
 
     if (!mounted) return;
   }
@@ -125,13 +122,9 @@ class _MyAppState extends State<MyApp> {
       home: Scaffold(
         backgroundColor: Colors.white,
         appBar: AppBar(
-          title: const Text(
-            'Flutter Compass'
-          ),
+          title: const Text('Flutter Compass'),
         ),
-
-        body:
-        Builder(builder: (context) {
+        body: Builder(builder: (context) {
           if (_hasPermissions) {
             // Run if permissions are obtained
             return Column(
@@ -174,16 +167,20 @@ class _MyAppState extends State<MyApp> {
                         child: Text(
                           'Steps taken: ${_steps.toString()}',
                           style: _steps == '?'
-                              ? const TextStyle(fontSize: 25, color: Colors.grey)
-                              : const TextStyle(fontSize: 25, color: Colors.blue),
+                              ? const TextStyle(
+                                  fontSize: 25, color: Colors.grey)
+                              : const TextStyle(
+                                  fontSize: 25, color: Colors.blue),
                         ),
                       ),
                       Center(
                         child: Text(
                           'Pedestrian status: ${_status.toString()}',
                           style: _status == 'walking' || _status == 'stopped'
-                              ? const TextStyle(fontSize: 25, color: Colors.blue)
-                              : const TextStyle(fontSize: 25, color: Colors.red),
+                              ? const TextStyle(
+                                  fontSize: 25, color: Colors.blue)
+                              : const TextStyle(
+                                  fontSize: 25, color: Colors.red),
                         ),
                       ),
                       Center(
@@ -191,8 +188,8 @@ class _MyAppState extends State<MyApp> {
                           _status == 'walking'
                               ? Icons.directions_walk
                               : _status == 'stopped'
-                              ? Icons.accessibility_new
-                              : Icons.error,
+                                  ? Icons.accessibility_new
+                                  : Icons.error,
                           size: 50,
                         ),
                       ),
@@ -206,9 +203,7 @@ class _MyAppState extends State<MyApp> {
                     stream: FlutterCompass.events,
                     builder: (context, snapshot) {
                       if (snapshot.hasError) {
-                        return Text(
-                          'Error reading heading: ${snapshot.error}'
-                        );
+                        return Text('Error reading heading: ${snapshot.error}');
                       }
 
                       if (snapshot.connectionState == ConnectionState.waiting) {
@@ -224,10 +219,9 @@ class _MyAppState extends State<MyApp> {
                       // show error message
                       if (direction == null) {
                         return const Center(
-                          child: Text(
-                              "Device does not have sensors !",
-                              style: TextStyle(fontSize: 20, color: Colors.blue)
-                          ),
+                          child: Text("Device does not have sensors !",
+                              style:
+                                  TextStyle(fontSize: 20, color: Colors.blue)),
                         );
                       }
 
@@ -235,26 +229,22 @@ class _MyAppState extends State<MyApp> {
                         children: [
                           ElevatedButton(
                             onPressed: performGetRequest,
-                            child: Text(
-                              'Perform GET Request',
-                              style: const TextStyle(fontSize: 20, color: Colors.white)
-                            ),
+                            child: Text('Perform GET Request',
+                                style: const TextStyle(
+                                    fontSize: 20, color: Colors.white)),
                           ),
                           ElevatedButton(
                             onPressed: performPostRequest,
-                            child: Text(
-                                'Perform POST Request',
-                                style: const TextStyle(fontSize: 20, color: Colors.white)
-                            ),
+                            child: Text('Perform POST Request',
+                                style: const TextStyle(
+                                    fontSize: 20, color: Colors.white)),
                           ),
-
                           Text(message),
-
                           Center(
                             child: Text(
-                              "Heading: $direction\nAccuracy: $accuracy",
-                              style: const TextStyle(fontSize: 20, color: Colors.grey)
-                            ),
+                                "Heading: $direction\nAccuracy: $accuracy",
+                                style: const TextStyle(
+                                    fontSize: 20, color: Colors.grey)),
                           ),
                           Material(
                             shape: const CircleBorder(),
@@ -279,20 +269,15 @@ class _MyAppState extends State<MyApp> {
                 ),
               ],
             );
-          }
-          else {
+          } else {
             // In case of missing permissions, build permissions first
             return Center(
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: <Widget>[
-                  const Text(
-                      'Location Permission Required'
-                  ),
+                  const Text('Location Permission Required'),
                   ElevatedButton(
-                    child: const Text(
-                        'Request Permissions'
-                    ),
+                    child: const Text('Request Permissions'),
                     onPressed: () {
                       Permission.locationWhenInUse.request().then((ignored) {
                         fetchPermissionStatus();
@@ -301,9 +286,7 @@ class _MyAppState extends State<MyApp> {
                   ),
                   const SizedBox(height: 16),
                   ElevatedButton(
-                    child: const Text(
-                        'Open App Settings'
-                    ),
+                    child: const Text('Open App Settings'),
                     onPressed: () {
                       openAppSettings().then((opened) {
                         //
@@ -333,7 +316,7 @@ class _MyAppState extends State<MyApp> {
             _steps */
 /*== '?'
             ? _steps
-            : (int.parse(initialSteps) - int.parse(_steps)).toString()*//*
+            : (int.parse(initialSteps) - int.parse(_steps)).toString()*/ /*
 ,
             style: const TextStyle(fontSize: 30),
           ),
