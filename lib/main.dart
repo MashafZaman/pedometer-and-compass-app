@@ -31,6 +31,8 @@ class _MyAppState extends State<MyApp> {
   CompassEvent? _lastRead;
   DateTime? _lastReadAt;
   String message = '';
+  double x = 0.0;
+  double y = 0.0;
 
   Future<void> performGetRequest() async {
     var url = 'https://palantir-backend.vercel.app/api/get';
@@ -49,8 +51,14 @@ class _MyAppState extends State<MyApp> {
     var response = await http.post(
       Uri.parse(url),
       headers: {'Content-Type': 'application/json'},
-      body: jsonEncode({'orientation': direction, 'steps_moved': _steps}),
+      body: jsonEncode({
+        'orientation': direction,
+        'steps_moved': _steps,
+        'x': x,
+        'y': y
+      }),
     );
+
     if (response.statusCode == 200) {
       setState(() {
         message = jsonDecode(response.body)['message'];
