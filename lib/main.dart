@@ -185,10 +185,8 @@ class _MyAppState extends State<MyApp> {
                         child: Text(
                           'Pedestrian status: ${_status.toString()}',
                           style: _status == 'walking' || _status == 'stopped'
-                              ? const TextStyle(
-                                  fontSize: 25, color: Colors.blue)
-                              : const TextStyle(
-                                  fontSize: 25, color: Colors.red),
+                              ? const TextStyle(fontSize: 25, color: Colors.blue)
+                              : const TextStyle(fontSize: 25, color: Colors.red),
                         ),
                       ),
                       Center(
@@ -227,9 +225,13 @@ class _MyAppState extends State<MyApp> {
                       // show error message
                       if (direction == null) {
                         return const Center(
-                          child: Text("Device does not have sensors !",
-                              style:
-                                  TextStyle(fontSize: 20, color: Colors.blue)),
+                          child: Text(
+                              "Device does not have sensors !",
+                              style:TextStyle(
+                                  fontSize: 20,
+                                  color: Colors.blue
+                              )
+                          ),
                         );
                       }
 
@@ -237,22 +239,39 @@ class _MyAppState extends State<MyApp> {
                         children: [
                           ElevatedButton(
                             onPressed: performGetRequest,
-                            child: Text('Perform GET Request',
-                                style: const TextStyle(
-                                    fontSize: 20, color: Colors.white)),
+                            child: const Text(
+                                'Perform GET Request',
+                                style:TextStyle(
+                                    fontSize: 20,
+                                    color: Colors.white
+                                )
+                            ),
                           ),
                           ElevatedButton(
                             onPressed: performPostRequest,
-                            child: Text('Perform POST Request',
-                                style: const TextStyle(
-                                    fontSize: 20, color: Colors.white)),
+                            child: const Text(
+                                'Perform POST Request',
+                                style: TextStyle(
+                                    fontSize: 20,
+                                    color: Colors.white
+                                )
+                            ),
                           ),
-                          Text(message),
+                          Text(
+                            message,
+                            style: const TextStyle(
+                                fontSize: 15,
+                                color: Colors.blueAccent
+                            ),
+                          ),
                           Center(
                             child: Text(
                                 "Heading: $direction\nAccuracy: $accuracy",
                                 style: const TextStyle(
-                                    fontSize: 20, color: Colors.grey)),
+                                    fontSize: 20,
+                                    color: Colors.grey
+                                )
+                            ),
                           ),
                           Material(
                             shape: const CircleBorder(),
