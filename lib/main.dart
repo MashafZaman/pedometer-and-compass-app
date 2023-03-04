@@ -53,7 +53,7 @@ class _MyAppState extends State<MyApp> {
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
         'orientation': direction,
-        'steps_moved': _steps,
+        'steps_moved': int.parse(_steps),
         'x': x,
         'y': y
       }),
