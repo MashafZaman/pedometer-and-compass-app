@@ -61,7 +61,9 @@ class _MyAppState extends State<MyApp> {
 
     if (response.statusCode == 200) {
       setState(() {
-        message = jsonDecode(response.body)['message'];
+        x = jsonDecode(response.body)['new_x'];
+        y = jsonDecode(response.body)['new_y'];
+        message = "Was at (${jsonDecode(response.body)['x']}, ${jsonDecode(response.body)['y']}), now at ($x, $y)";
       });
     } else {
       print('Request failed with status: ${response.statusCode}.');
