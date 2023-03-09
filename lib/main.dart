@@ -26,13 +26,19 @@ String _steps = '?';
 class _MyAppState extends State<MyApp> {
   late Stream<StepCount> _stepCountStream;
   late Stream<PedestrianStatus> _pedestrianStatusStream;
+
   String _status = '?';
   bool _hasPermissions = false;
+
   CompassEvent? _lastRead;
   DateTime? _lastReadAt;
+
   String message = '';
+
   double x = 0.0;
   double y = 0.0;
+
+  int recordedSteps = 0;
 
   Future<void> performGetRequest() async {
     var url = 'https://palantir-backend.vercel.app/api/get';
@@ -53,7 +59,7 @@ class _MyAppState extends State<MyApp> {
       headers: {'Content-Type': 'application/json'},
       body: jsonEncode({
         'orientation': direction,
-        'steps_moved': int.parse(_steps),
+        'steps_moved': 1,
         'x': x,
         'y': y
       }),
@@ -63,7 +69,9 @@ class _MyAppState extends State<MyApp> {
       setState(() {
         x = jsonDecode(response.body)['new_x'];
         y = jsonDecode(response.body)['new_y'];
-        message = "Was at (${jsonDecode(response.body)['x']}, ${jsonDecode(response.body)['y']}), now at ($x, $y)";
+        recordedSteps = jsonDecode(response.body)['recorded_steps'];
+
+        message = "(${jsonDecode(response.body)['x'].toInt()}, ${jsonDecode(response.body)['y'].toInt()}) -> (${x.toInt()}, ${y.toInt()}), moved $recordedSteps steps";
       });
     } else {
       print('Request failed with status: ${response.statusCode}.');
@@ -81,6 +89,11 @@ class _MyAppState extends State<MyApp> {
     print(event);
     setState(() {
       _steps = event.steps.toString();
+
+      event.steps > recordedSteps
+        ? performPostRequest()
+        : message = "No movement detected";
+
     });
   }
 
@@ -129,10 +142,11 @@ class _MyAppState extends State<MyApp> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      debugShowCheckedModeBanner: false,
       home: Scaffold(
         backgroundColor: Colors.white,
         appBar: AppBar(
-          title: const Text('Flutter Compass'),
+          title: const Text('Compass & Pedometer'),
         ),
         body: Builder(builder: (context) {
           if (_hasPermissions) {
@@ -177,10 +191,8 @@ class _MyAppState extends State<MyApp> {
                         child: Text(
                           'Steps taken: ${_steps.toString()}',
                           style: _steps == '?'
-                              ? const TextStyle(
-                                  fontSize: 25, color: Colors.grey)
-                              : const TextStyle(
-                                  fontSize: 25, color: Colors.blue),
+                              ? const TextStyle(fontSize: 25, color: Colors.grey)
+                              : const TextStyle(fontSize: 25, color: Colors.blue),
                         ),
                       ),
                       Center(
@@ -242,23 +254,14 @@ class _MyAppState extends State<MyApp> {
                           ElevatedButton(
                             onPressed: performGetRequest,
                             child: const Text(
-                                'Perform GET Request',
+                                'Get API Status',
                                 style:TextStyle(
                                     fontSize: 20,
                                     color: Colors.white
                                 )
                             ),
                           ),
-                          ElevatedButton(
-                            onPressed: performPostRequest,
-                            child: const Text(
-                                'Perform POST Request',
-                                style: TextStyle(
-                                    fontSize: 20,
-                                    color: Colors.white
-                                )
-                            ),
-                          ),
+
                           Text(
                             message,
                             style: const TextStyle(
@@ -266,6 +269,7 @@ class _MyAppState extends State<MyApp> {
                                 color: Colors.blueAccent
                             ),
                           ),
+
                           Center(
                             child: Text(
                                 "Heading: $direction\nAccuracy: $accuracy",
@@ -275,6 +279,7 @@ class _MyAppState extends State<MyApp> {
                                 )
                             ),
                           ),
+
                           Material(
                             shape: const CircleBorder(),
                             clipBehavior: Clip.antiAlias,
@@ -308,7 +313,8 @@ class _MyAppState extends State<MyApp> {
                   ElevatedButton(
                     child: const Text('Request Permissions'),
                     onPressed: () {
-                      Permission.locationWhenInUse.request().then((ignored) {
+                      Permission.locationWhenInUse.request()
+                      .then((ignored) {
                         fetchPermissionStatus();
                       });
                     },
@@ -330,53 +336,5 @@ class _MyAppState extends State<MyApp> {
       ),
     );
   }
-/*
 
-  Widget _buildPedometer() {
-    return Center(
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
-          const Text(
-            'Steps taken:',
-            style: TextStyle(fontSize: 30),
-          ),
-          Text(
-            _steps */
-/*== '?'
-            ? _steps
-            : (int.parse(initialSteps) - int.parse(_steps)).toString()*/ /*
-,
-            style: const TextStyle(fontSize: 30),
-          ),
-          const Divider(
-            height: 100,
-            thickness: 0,
-            color: Colors.white,
-          ),
-          const Text(
-            'Pedestrian status:',
-            style: TextStyle(fontSize: 20),
-          ),
-          Icon(
-            _status == 'walking'
-                ? Icons.directions_walk
-                : _status == 'stopped'
-                ? Icons.accessibility_new
-                : Icons.error,
-            size: 100,
-          ),
-          Center(
-            child: Text(
-              _status,
-              style: _status == 'walking' || _status == 'stopped'
-                  ? const TextStyle(fontSize: 10, color: Colors.blue)
-                  : const TextStyle(fontSize: 10, color: Colors.red),
-            ),
-          )
-        ],
-      ),
-    );
-  }
-*/
 }
