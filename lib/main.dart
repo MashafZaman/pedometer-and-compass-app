@@ -240,7 +240,7 @@ class _MyAppState extends State<MyApp> {
                       if (direction == null) {
                         return const Center(
                           child: Text(
-                              "Device does not have sensors !",
+                              "Device does not have sensors!",
                               style:TextStyle(
                                   fontSize: 20,
                                   color: Colors.blue
@@ -292,7 +292,7 @@ class _MyAppState extends State<MyApp> {
                               ),
                               child: Transform.rotate(
                                 angle: (direction! * (math.pi / 180) * -1),
-                                child: Image.asset('assets/compass.png'),
+                                child: Image.asset('assets/compass.png')
                               ),
                             ),
                           ),
@@ -336,5 +336,4 @@ class _MyAppState extends State<MyApp> {
       ),
     );
   }
-
 }
